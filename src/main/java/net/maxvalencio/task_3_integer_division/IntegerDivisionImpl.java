@@ -2,59 +2,87 @@ package net.maxvalencio.task_3_integer_division;
 
 public class IntegerDivisionImpl implements IntegerDivision {
 
-	public String divideInteger(int divident, int divider) {
+	public String divideInteger(int dividend, int divider) {
 		StringBuilder result = new StringBuilder();
-		StringBuilder viewResult = new StringBuilder();
-		String digitDivident = "";
-		Integer multiply;
-		boolean isResultNegative = false;
+		StringBuilder viewDivision = new StringBuilder();
 
 		if (divider == 0) {
 			return "Error!!! Divider = 0 , division by zero ";
 		}
-		if (divident < divider && divident >= 0) {
-			return divident + " / " + divider + " = 0";
+		if (dividend < divider && dividend >= 0) {
+			return dividend + " / " + divider + " = 0";
 		}
 
-		if (divident < 0 || divider < 0) {
-			isResultNegative = true;
-		}
-		if (divident < 0 && divider < 0) {
-			isResultNegative = false;
-		}
+		boolean isResultNegative = checkResult(dividend, divider);
+		boolean isDividendNegative = checkDividend(dividend);
+		boolean isDividerNegative = checkDivider(divider);
 
-		divident = Math.abs(divident);
+		dividend = Math.abs(dividend);
 		divider = Math.abs(divider);
 
-		String[] numbersDivident = String.valueOf(divident).split("");
+		createViewDivision(viewDivision, result, dividend, divider);
 
-		for (int i = 0; i < numbersDivident.length; i++) {
+		result = editResult(isResultNegative, result);
+		dividend = editDividend(isDividendNegative, dividend);
+		divider = editDivider(isDividerNegative, divider);
+
+		modifyViewDivision(viewDivision, result, dividend, divider);
+		return viewDivision.toString();
+	}
+
+	private boolean checkResult(int dividend, int divider) {
+		if (dividend < 0 && divider > 0) {
+			return true;
+		}
+		if (dividend > 0 && divider < 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private boolean checkDividend(int dividend) {
+		if (dividend < 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private boolean checkDivider(int divider) {
+		if (divider < 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private void createViewDivision(StringBuilder viewDivision, StringBuilder result, int dividend, int divider) {
+		String digitDividend = "";
+		String[] numbersDividend = String.valueOf(dividend).split("");
+		for (int i = 0; i < numbersDividend.length; i++) {
 			if (i == 0) {
-				digitDivident = numbersDivident[i];
+				digitDividend = numbersDividend[i];
 			} else {
-				digitDivident += numbersDivident[i];
+				digitDividend += numbersDividend[i];
 			}
 
-			result.append(Integer.parseInt(digitDivident) / divider);
-			multiply = (Integer.parseInt(digitDivident) / divider) * divider;
+			result.append(Integer.parseInt(digitDividend) / divider);
+			int multiply = (Integer.parseInt(digitDividend) / divider) * divider;
 
-			if (Integer.parseInt(digitDivident) >= divider) {
-				viewResult.append(String.format("%" + (i + 2) + "s", "_" + digitDivident)).append("\n");
-				viewResult.append(String.format("%" + (i + 2) + "s", multiply)).append("\n");
-				viewResult.append(String.format("%" + (i + 2) + "s", createLine(String.valueOf(multiply).length())))
+			if (Integer.parseInt(digitDividend) >= divider) {
+				viewDivision.append(String.format("%" + (i + 2) + "s", "_" + digitDividend)).append("\n");
+				viewDivision.append(String.format("%" + (i + 2) + "s", multiply)).append("\n");
+				viewDivision.append(String.format("%" + (i + 2) + "s", createLine(String.valueOf(multiply).length())))
 						.append("\n");
 			}
 
-			digitDivident = String.valueOf(Integer.parseInt(digitDivident) % divider);
+			digitDividend = String.valueOf(Integer.parseInt(digitDividend) % divider);
 
-			if (i == numbersDivident.length - 1) {
-				viewResult.append(String.format("%" + (i + 2) + "s", digitDivident)).append("\n");
+			if (i == numbersDividend.length - 1) {
+				viewDivision.append(String.format("%" + (i + 2) + "s", digitDividend)).append("\n");
 			}
 		}
-
-		result = checkResult(result, isResultNegative);
-		modifyViewResult(divident, divider, viewResult, result);
-		return viewResult.toString();
 	}
 
 	private StringBuilder createLine(int size) {
@@ -65,18 +93,33 @@ public class IntegerDivisionImpl implements IntegerDivision {
 		return line;
 	}
 
-	private StringBuilder checkResult(StringBuilder result, boolean isResultNegative) {
-		if (result.charAt(0) == '0') {
-			result.deleteCharAt(0);
-		}
+	private StringBuilder editResult(boolean isResultNegative, StringBuilder result) {
+		StringBuilder resultChecked = new StringBuilder();
+		String temp = result.toString().replaceAll("^0*", ""); // -> 123
+		result.toString().replaceFirst("^0*", "");
+		resultChecked.append(temp);
 
 		if (isResultNegative) {
-			result.insert(0, "-");
+			resultChecked.insert(0, "-");
 		}
-		return result;
+		return resultChecked;
 	}
 
-	private void modifyViewResult(Integer dividend, Integer divider, StringBuilder view, StringBuilder result) {
+	private int editDividend(boolean isDividendNegative, int dividend) {
+		if (isDividendNegative) {
+			dividend = -(dividend);
+		}
+		return dividend;
+	}
+
+	private int editDivider(boolean isDividerNegative, int divider) {
+		if (isDividerNegative) {
+			divider = -(divider);
+		}
+		return divider;
+	}
+
+	private void modifyViewDivision(StringBuilder view, StringBuilder result, Integer dividend, Integer divider) {
 		int[] index = new int[3];
 		for (int i = 0, j = 0; i < view.length(); i++) {
 			if (view.charAt(i) == '\n') {
@@ -89,11 +132,11 @@ public class IntegerDivisionImpl implements IntegerDivision {
 			}
 		}
 
-		int tab = calculateDigit(dividend) + 1 - index[0];
+		int tab = calculateDigit(Math.abs(dividend)) + 1 - index[0];
 		view.insert(index[2], assemblyString(tab, ' ') + "|" + result.toString());
 		view.insert(index[1], assemblyString(tab, ' ') + "|" + assemblyString(result.length(), '-'));
 		view.insert(index[0], "|" + divider);
-		view.replace(1, index[0], dividend.toString());
+		view.replace(0, index[0], dividend < 0 ? dividend.toString() : "_" + Math.abs(dividend));
 	}
 
 	private int calculateDigit(int i) {
