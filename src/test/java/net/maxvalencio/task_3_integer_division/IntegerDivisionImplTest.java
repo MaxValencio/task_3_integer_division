@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class IntegerDivisionImplTest {
 
-	IntegerDivisionImpl integerDivision = new IntegerDivisionImpl();
+	private IntegerDivisionImpl integerDivision = new IntegerDivisionImpl();
 	
 	@Test
 	public void divideInteger_correct() {
@@ -35,7 +35,7 @@ public class IntegerDivisionImplTest {
 	}
 	
 	@Test
-	public void divideInteger_divedentZero_correct() {
+	public void divideInteger_divedendZero_correct() {
 		String actual = integerDivision.divideInteger(0, 5);
 		String expected = "0 / 5 = 0";
 		assertEquals(expected, actual);
@@ -89,7 +89,7 @@ public class IntegerDivisionImplTest {
 	public void divideInteger_negativeByNegative_correct() {
 		String actual = integerDivision.divideInteger(-1, -1);
 		String expected = "-1|-1\n" + 
-						  " 1|-\n" + 
+						  " 1|--\n" + 
 						  " -|1\n" + 
 						  " 0\n";
 		assertEquals(expected, actual);
@@ -109,7 +109,7 @@ public class IntegerDivisionImplTest {
 	public void divideInteger_zerosInResult_correct() {
 		String actual = integerDivision.divideInteger(100, 99);
 		String expected = "_100|99\n" + 
-						  "  99|-\n" + 
+						  "  99|--\n" + 
 				          "  --|1\n" + 
 				          "   1\n";
 		assertEquals(expected, actual);
