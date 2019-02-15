@@ -35,7 +35,7 @@ public class IntegerDivisionImplTest {
 	}
 	
 	@Test
-	public void divideInteger_divedendZero_correct() {
+	public void divideInteger_dividendZero_correct() {
 		String actual = integerDivision.divideInteger(0, 5);
 		String expected = "0 / 5 = 0";
 		assertEquals(expected, actual);
