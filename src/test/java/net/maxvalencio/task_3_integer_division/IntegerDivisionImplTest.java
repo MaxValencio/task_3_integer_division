@@ -42,6 +42,13 @@ public class IntegerDivisionImplTest {
 	}
 
 	@Test
+	public void divideInteger_absoluteDividendLessAbsoluteDivider_correct() {
+		String actual = integerDivision.divideInteger(-1, -11);
+		String expected = "-1 / -11 = 0";
+		assertEquals(expected, actual);
+	}
+	
+	@Test
 	public void divideInteger_deviderZero_correct() {
 		String actual = integerDivision.divideInteger(3, 0);
 		String expected = "Error!!! Divider = 0 , division by zero ";

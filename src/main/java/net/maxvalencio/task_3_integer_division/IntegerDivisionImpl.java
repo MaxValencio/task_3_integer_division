@@ -3,51 +3,56 @@ package net.maxvalencio.task_3_integer_division;
 public class IntegerDivisionImpl implements IntegerDivision {
 
 	public String divideInteger(int dividend, int divider) {
-		StringBuilder result = new StringBuilder();
-		StringBuilder viewDivision = new StringBuilder();
+		StringBuilder quotient = new StringBuilder();
+		StringBuilder divisionView = new StringBuilder();
 
 		if (divider == 0) {
 			return "Error!!! Divider = 0 , division by zero ";
 		}
-		if (dividend < divider && dividend >= 0) {
+		if (Math.abs(dividend) < Math.abs(divider) && divider != 0) {
 			return dividend + " / " + divider + " = 0";
 		}
 
-		createCollumsDivision(viewDivision, result, dividend, divider);
-		createFullTableDivision(viewDivision, result, dividend, divider);
-		return viewDivision.toString();
+		createTableDivision(divisionView, quotient, dividend, divider);
+		addQuotient(quotient, dividend, divider);
+		addHeaderTableDivision(divisionView, quotient, dividend, divider);
+		return divisionView.toString();
 	}
 
-	private void createCollumsDivision(StringBuilder viewDivision, StringBuilder result, int dividend, int divider) {
-		dividend = Math.abs(dividend);
-		divider = Math.abs(divider);
-		String digitDividend = "";
-		String[] numbersDividend = String.valueOf(dividend).split("");
-		for (int i = 0; i < numbersDividend.length; i++) {
-			if (i == 0) {
-				digitDividend = numbersDividend[i];
+	private void createTableDivision(StringBuilder divisionView, StringBuilder quotient, int dividend, int divider) {
+		String remainder = "0";
+		String[] dividendNumbers = String.valueOf(Math.abs(dividend)).split("");
+		for (int i = 0; i < dividendNumbers.length; i++) {
+			if (Integer.parseInt(remainder) == 0) {
+				remainder = dividendNumbers[i];
 			} else {
-				digitDividend += numbersDividend[i];
+				remainder += dividendNumbers[i];
 			}
 
-			result.append(Integer.parseInt(digitDividend) / divider);
-			String multiply = String.valueOf((Integer.parseInt(digitDividend) / divider) * divider);
+			quotient.append(Integer.parseInt(remainder) / Math.abs(divider));
 
-			if (Integer.parseInt(digitDividend) >= divider) {
-				viewDivision.append(String.format("%" + (i + 2) + "s", "_" + digitDividend)).append("\n");
-				viewDivision.append(String.format("%" + (i + 2) + "s", multiply)).append("\n");
-				viewDivision.append(String.format("%" + (i + 2) + "s", addLineSymbols(multiply.length(),'-'))).append("\n");
+			String calculationIntermediate = String.valueOf((Integer.parseInt(remainder) / divider) * divider);
+
+			if (Integer.parseInt(remainder) >= Math.abs(divider)) {
+				addColumn(divisionView, remainder, calculationIntermediate, i);
 			}
 
-			digitDividend = String.valueOf(Integer.parseInt(digitDividend) % divider);
+			remainder = String.valueOf(Integer.parseInt(remainder) % Math.abs(divider));
 
-			if (i == numbersDividend.length - 1) {
-				viewDivision.append(String.format("%" + (i + 2) + "s", digitDividend)).append("\n");
+			if (i == dividendNumbers.length - 1) {
+				addRemainder(divisionView, remainder, i);
 			}
 		}
 	}
 
-	private StringBuilder addLineSymbols(int size, char symbol) {
+	private void addColumn(StringBuilder divisionView, String remainder, String intermediateСalculation, int i) {
+		divisionView.append(String.format("%" + (i + 2) + "s", "_" + remainder)).append("\n");
+		divisionView.append(String.format("%" + (i + 2) + "s", intermediateСalculation)).append("\n");
+		divisionView.append(String.format("%" + (i + 2) + "s", addSymbolsLine(intermediateСalculation.length(), '-')))
+				.append("\n");
+	}
+
+	private StringBuilder addSymbolsLine(int size, char symbol) {
 		StringBuilder line = new StringBuilder();
 		for (int i = 0; i < size; i++) {
 			line.append(symbol);
@@ -55,45 +60,60 @@ public class IntegerDivisionImpl implements IntegerDivision {
 		return line;
 	}
 
-	private void createFullTableDivision(StringBuilder view, StringBuilder result, Integer dividend, Integer divider) {
-		int[] index = new int[3];
-		for (int i = 0, j = 0; i < view.length(); i++) {
-			if (view.charAt(i) == '\n') {
-				index[j] = i;
+	private void addRemainder(StringBuilder divisionView, String remainder, int i) {
+		divisionView.append(String.format("%" + (i + 2) + "s", remainder)).append("\n");
+	}
+	
+	private void addQuotient(StringBuilder quotient, int dividend, int divider) {
+		String buffer = quotient.toString().replaceFirst("^0*", "");
+		quotient.setLength(0);
+		quotient.append(buffer);
+		if (isQuotientNegative(dividend, divider)) {
+			quotient.insert(0, "-");
+		}
+	}
+
+	private boolean isQuotientNegative(int dividend, int divider) {
+		return (dividend / Math.abs(dividend)) * (divider / Math.abs(divider)) < 0;
+	}
+
+	private void addHeaderTableDivision(StringBuilder divisionView, StringBuilder quotient, int dividend, int divider) {
+		int[] linesHeader = searchLinesHeader(divisionView);
+		createHeader(linesHeader, divisionView, quotient, dividend, divider);
+	}
+
+	private int[] searchLinesHeader(StringBuilder divisionView) {
+		int[] tableLines = new int[3];
+		for (int i = 0, j = 0; i < divisionView.length(); i++) {
+			if (divisionView.charAt(i) == '\n') {
+				tableLines[j] = i;
 				j++;
 			}
-
 			if (j == 3) {
 				break;
 			}
 		}
-		result = modifyResult(result, dividend, divider );
-		int quantitySpaces = calculateDigits(Math.abs(dividend)) + 1 - index[0];
-		view.insert(index[2], addLineSymbols(quantitySpaces,' ') + "|" + result.toString());
-		view.insert(index[1], addLineSymbols(quantitySpaces,' ') + "|" + addLineSymbols(getMaxLengthNumbers(result, divider),'-'));
-		view.insert(index[0], "|" + divider);
-		view.replace(0, index[0], dividend < 0 ? dividend.toString() : "_" + dividend);
+		return tableLines;
+	}
+
+	private void createHeader(int[] linesHeader, StringBuilder divisionView, StringBuilder quotient, int dividend, int divider) {
+		int quantitySpaces = calculateLineLength(Math.abs(dividend)) + 1 - linesHeader[0];
+		divisionView.insert(linesHeader[2], addSymbolsLine(quantitySpaces, ' ') + "|" + quotient.toString());
+		divisionView.insert(linesHeader[1], addSymbolsLine(quantitySpaces, ' ') + "|"
+				+ addSymbolsLine(getMaxLengthNumbers(quotient, divider), '-'));
+		divisionView.insert(linesHeader[0], "|" + divider);
+		divisionView.replace(0, linesHeader[0], dividend < 0 ? String.valueOf(dividend) : "_" + dividend);
 	}
 	
-	private StringBuilder modifyResult(StringBuilder result, int dividend, int divider) {
-		StringBuilder resultChecked = new StringBuilder();	
-		resultChecked.append(result.toString().replaceFirst("^0*", ""));
-
-		if ((dividend < 0) ^ (divider < 0)) {
-			resultChecked.insert(0, "-");
-		}
-		return resultChecked;
-	}
-
-	private int calculateDigits(int i) {
+	private int calculateLineLength(int i) {
 		return (int) Math.log10(i) + 1;
 	}
-	
-	private int getMaxLengthNumbers(StringBuilder result, Integer divider) {
-		if(result.length() < divider.toString().length()) {
+
+	private int getMaxLengthNumbers(StringBuilder quotient, Integer divider) {
+		if (quotient.length() < divider.toString().length()) {
 			return divider.toString().length();
 		} else {
-			return result.length();
+			return quotient.length();
 		}
 	}
 }
